@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from .mock_db import MOCK_TEAMS, MOCK_PLAYERS, MOCK_MATCHES
 
 app = FastAPI()
 
@@ -14,32 +15,44 @@ app.add_middleware(
 
 @app.get("/api/teams_players")
 def get_teams_players():
-    # Dummy data for demo
+    # Combines teams and players for frontend
     return {
-        "teams": [
-            {"name": "NAVI", "players": ["s1mple", "electroNic", "b1t"]},
-            {"name": "FaZe", "players": ["karrigan", "rain", "broky"]},
-        ],
-        "players": [
-            {"name": "s1mple", "team": "NAVI", "stats": {"elo": 2100}},
-            {"name": "broky", "team": "FaZe", "stats": {"elo": 1950}},
-        ]
+        "teams": MOCK_TEAMS,
+        "players": MOCK_PLAYERS
     }
+
+@app.get("/api/teams")
+def get_teams():
+    return MOCK_TEAMS
+
+@app.get("/api/players")
+def get_players():
+    return MOCK_PLAYERS
+
+@app.get("/api/matches")
+def get_matches():
+    return MOCK_MATCHES
+
+@app.get("/api/players/{player_id}")
+def get_player(player_id: int):
+    p = next((pl for pl in MOCK_PLAYERS if pl["id"] == player_id), None)
+    return p or {}
 
 @app.post("/api/video_analysis")
 async def video_analysis(player_name: str = Form(...), file: UploadFile = File(...)):
-    # Placeholder for video analysis logic
-    # For now, just mock result
-    return {"player": player_name, "feedback": "Great crosshair placement. Work on utility usage."}
+    # Placeholder - you can later call OpenAI here for feedback!
+    # For now, return mock feedback
+    return {"player": player_name, "feedback": "This is a mock analysis result. Connect to OpenAI or plug in your model here."}
 
 @app.post("/api/opponent_analysis")
 async def opponent_analysis(opponent_name: str = Form(...), file: UploadFile = File(...)):
-    return {"opponent": opponent_name, "report": "Prefers A site on Mirage. Weak eco rounds."}
+    return {"opponent": opponent_name, "report": "This is a mock opponent analysis. Add your scouting code here."}
 
 @app.post("/api/elo_chatbot")
 async def elo_chatbot(player_name: str = Form(...), question: str = Form(...)):
-    # Mock chatbot response
+    # Mock chatbot logic, could plug in OpenAI or logic here
     return {
         "player": player_name,
-        "answer": f"Player {player_name} is recommended for recruitment. Elo above team average. Excellent AWP performance."
+        "answer": f"Mock answer for {player_name}. You asked: {question}"
     }
+
